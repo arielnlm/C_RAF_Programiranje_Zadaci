@@ -1,0 +1,344 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/**TODO: Glitch prilikom soritranja vise puta po imenu i broju*/
+
+typedef struct Element{
+    int broj;
+    char ime[20];
+    struct Element* sledeci;
+}Element;
+
+Element* dodajNaPocetak(Element* glava, Element* novi)
+{
+    if(glava == NULL)
+        return novi;
+    novi ->sledeci = glava;
+    return novi;
+}
+Element* dodajNaKraj(Element* glava, Element* novi)
+{
+    if(glava == NULL)
+        return novi;
+    Element* tmp = glava;
+
+    while(tmp->sledeci != NULL)
+    {
+        tmp = tmp->sledeci;
+    }
+
+    tmp->sledeci = novi;
+    novi ->sledeci= NULL;
+    return glava;
+}
+Element* dodajNaIndex(Element* glava, Element* novi, int index)
+{
+    if(glava != NULL)
+    {
+        Element* tmp = glava;
+        if(index > 0)
+        {
+           while(tmp ->sledeci != NULL && index - 1 >0)
+            {
+                index--;
+                tmp = tmp->sledeci;
+            }
+
+            novi->sledeci = tmp->sledeci;
+            tmp->sledeci = novi;
+        }else glava = dodajNaPocetak(glava,novi);
+
+        return glava;
+    }
+    else return novi;
+
+}
+
+Element* dodajElement(int broj,char ime[])
+{
+    Element* novi = malloc(sizeof(Element));
+    novi->broj = broj;
+    strcpy(novi->ime,ime);
+    novi->sledeci = NULL;
+    return novi;
+}
+
+Element* obrisiVrednost(Element* glava,int vred)
+{
+    Element* tmp = glava;
+    /**Ako je glava prazna*/
+    if(glava == NULL)
+       return NULL;
+   /**Listanje kroz sve clanove u potrazi za vred za brisanje*/
+    while(tmp->sledeci != NULL)
+    {
+        if(tmp->sledeci->broj == vred)
+        {
+            Element* brisanje = tmp->sledeci;
+            tmp->sledeci = tmp->sledeci->sledeci;
+            free(brisanje);
+        }else
+        {
+          tmp = tmp->sledeci;
+        }
+    }
+    /**Ako glava ima vrednost za brisanje*/
+    if(glava->broj == vred)
+    {
+        Element* novaGlava = glava->sledeci;
+        free(glava);
+        return novaGlava;
+    }
+        return glava;
+}
+
+Element* obrisiPoziciju(Element* glava, int index)
+{
+    if(glava == NULL)
+        return NULL;
+
+    Element* tmp = glava;
+    int i=0;
+    /**Ako brisemo glavu*/
+    if(index == 0)
+    {
+        Element* novaGlava = glava->sledeci;
+        free(glava);
+        return novaGlava;
+    }
+    /**Ako ne predjemo index i ako nije element NULL*/
+    for(i=0; i<index -1  && tmp != NULL; i++)
+    {
+        tmp = tmp->sledeci;
+    }
+    /**Naslo je clan, brise ga*/
+    if(i == index-1)
+    {
+        Element* brisanje = tmp->sledeci;
+        tmp->sledeci = tmp->sledeci->sledeci;
+        free(brisanje);
+    }
+    /**Doslo je do kraja liste, brise rep*/
+    else
+    {
+        Element* brisanje = tmp->sledeci;
+        tmp->sledeci = NULL;
+        free(brisanje);
+    }
+
+    return glava;
+
+}
+
+void ispisi(Element* glava)
+{
+    Element* tmp = glava;
+    while(tmp != NULL)
+    {
+        printf("Vrednost : %d, Ime: %s\n",tmp->broj, tmp->ime);
+        tmp = tmp->sledeci;
+    }
+}
+
+Element* sortirajElemente(Element* glava)
+{
+    Element* tmp = glava;
+    Element* current = NULL;
+    int tempvar;
+    char tempime[20];
+    /**Kruzimo kroz clanove*/
+    while(tmp != NULL)
+    {
+        current = tmp;
+        /**Uporedjujemo svaki sledeci clan od trenutnog i sortiramo na osnovu vred*/
+        while(current ->sledeci != NULL)
+        {
+            if(current->broj > current->sledeci->broj)
+            {
+                tempvar = current->broj;
+                strcpy(tempime, current->ime);
+                current->broj = current->sledeci->broj;
+                strcpy(current->ime,current->sledeci->ime);
+                current->sledeci->broj = tempvar;
+                strcpy(current->sledeci->ime,tempime);
+            }
+            current = current->sledeci;
+        }
+        tmp = tmp->sledeci;
+    }
+    return glava;
+}
+
+Element* dodajSortitano(Element* glava, Element* novi)
+{
+    Element* tmp = sortirajElemente(glava);
+
+    /**Ako je najmanji posle soritranja*/
+        if(novi->broj < glava->broj)
+        {
+            return dodajNaPocetak(glava, novi);
+        }
+
+    while(tmp->sledeci != NULL)
+    {
+        /**Ako nadje pravo mesto ubaci ga na tu poziciju*/
+        if(tmp->broj <= novi->broj && tmp->sledeci->broj >= novi->broj)
+        {
+            novi->sledeci = tmp->sledeci;
+            tmp->sledeci = novi;
+            return glava;
+        }
+        tmp = tmp->sledeci;
+    }
+    if(novi->broj > tmp->broj)
+        return dodajNaKraj(glava, novi);
+
+}
+
+Element* nadoveziListe(Element* glava1, Element* glava2)
+{
+    Element* tmp = glava1;
+    while(tmp->sledeci != NULL)
+    {
+       tmp = tmp->sledeci;
+    }
+    tmp->sledeci = glava2;
+
+    return glava1;
+}
+
+Element* invertElemente(Element* glava)
+{
+    Element* tmp = glava;
+    Element* sled = NULL;
+    Element* pret = NULL;
+
+    while(tmp != NULL)
+    {
+        sled = tmp->sledeci;
+        tmp ->sledeci =pret;
+        pret = tmp;
+        tmp = sled;
+    }
+
+    return pret;
+}
+
+Element* sortIme(Element* glava)
+{
+    Element* tmp = glava;
+    Element* current = NULL;
+    int tempvar;
+    char tempime[20];
+
+    while(tmp != NULL)
+    {
+        current = tmp;
+
+        while(current->sledeci != NULL)
+        {
+            if(strcmp(current->ime,current->sledeci->ime) > 0)
+            {
+                /**Swap vrednosti clanova*/
+                tempvar = current->broj;
+                strcpy(tempime, current->ime);
+                current->broj = current->sledeci->broj;
+                strcpy(current->ime,current->sledeci->ime);
+                current->sledeci->broj = tempvar;
+                strcpy(current->sledeci->ime,tempime);
+            }
+            current = current->sledeci;
+        }
+        tmp = tmp->sledeci;
+    }
+    return glava;
+}
+
+Element* interface(Element* glava)
+{
+    printf("------------------------------------------------------------------\n");
+    printf("Ukucajte redni broj ispred opcije koju hocete da uradite: \n");
+    printf("1.Dodaj element na pocetak\n2.Dodaj element na kraj\n3.Dodaj element na index\n");
+    printf("4.Sortiraj elemente po broju\n5.Soritraj elemente po imenu\n6.Obrisi element na poziciji\n");
+    printf("7.Invertuj elemente\n8.Obrisi elemente po vrednoscu broja\n9.Ispisi\n0.Izlaz\n");
+    printf("------------------------------------------------------------------\n");
+    int izbor;
+    scanf("%d",&izbor);
+
+    int broj,index;
+    char ime[20];
+
+    switch(izbor)
+    {
+    case 0:
+        break;
+    case 1:
+        printf("Unesite broj pa ime\n");
+        scanf("%d %s",&broj, &ime);
+        glava = dodajNaPocetak(glava, dodajElement(broj,ime));
+        glava = interface(glava);
+        break;
+    case 2:
+        printf("Unesite broj pa ime\n");
+        scanf("%d %s",&broj, &ime);
+        glava = dodajNaKraj(glava, dodajElement(broj,ime));
+        glava = interface(glava);
+        break;
+    case 3:
+        printf("Unesite broj pa ime pa index\n");
+        scanf("%d %s %d",&broj, &ime, &index);
+        glava = dodajNaIndex(glava, dodajElement(broj,ime),index);
+        glava = interface(glava);
+        break;
+    case 4:
+        glava = sortirajElemente(glava);
+        glava = interface(glava);
+        break;
+    case 5:
+        glava = sortIme(glava);
+        glava = interface(glava);
+        break;
+    case 6:
+        printf("Unesite index koju brisete\n");
+        scanf("%d",&index);
+        glava = obrisiPoziciju(glava, index);
+        glava = interface(glava);
+        break;
+    case 7:
+        glava = invertElemente(glava);
+        glava = interface(glava);
+        break;
+    case 8:
+        printf("Unesite vrednost koju brisete\n");
+        scanf("%d",&index);
+        glava = obrisiVrednost(glava, index);
+        glava = interface(glava);
+        break;
+    case 9:
+        ispisi(glava);
+        glava = interface(glava);
+        break;
+    }
+    return glava;
+}
+
+int main()
+{
+    Element* glava = NULL;
+    Element* glava2 = NULL;
+
+    glava = dodajNaPocetak(glava,dodajElement(4, "pera"));
+    glava = dodajNaPocetak(glava,dodajElement(2, "nikola"));
+    glava = dodajNaPocetak(glava,dodajElement(6, "milan"));
+
+    glava2 = dodajNaPocetak(glava2,dodajElement(40, "teodor"));
+    glava2 = dodajNaPocetak(glava2,dodajElement(20, "miodrag"));
+    glava2 = dodajNaPocetak(glava2,dodajElement(60, "aleksa"));
+    glava = sortIme(glava);
+    //glava = invertElemente(glava);
+    //glava = nadoveziListe(glava,glava2);
+    //ispisi(glava);
+    glava = interface(glava);
+    return 0;
+}
