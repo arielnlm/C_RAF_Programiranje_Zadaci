@@ -255,6 +255,25 @@ Element* sortIme(Element* glava)
     return glava;
 }
 
+Element* obrisiVeceOdN(Element *glava, int n)
+{
+    Element* tmp = glava;
+    int i = 0;
+    while(tmp->sledeci != NULL)
+    {
+        i++;
+        if(i >= n )
+        {
+            Element* brisanje = tmp->sledeci;
+            tmp->sledeci = tmp ->sledeci->sledeci;
+            free(brisanje);
+            continue;
+        }
+        tmp = tmp->sledeci;
+    }
+    return glava;
+}
+
 Element* interface(Element* glava)
 {
     printf("------------------------------------------------------------------\n");
