@@ -1,0 +1,235 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Element{
+    int broj;
+    struct Element* sledeci;
+}Element;
+
+Element* dodajNaPocetak(Element* glava, Element* novi)
+{
+    if(glava == NULL)
+        return novi;
+    novi ->sledeci = glava;
+    return novi;
+}
+Element* dodajNaKraj(Element* glava, Element* novi)
+{
+    if(glava == NULL)
+        return novi;
+    Element* tmp = glava;
+
+    while(tmp->sledeci != NULL)
+    {
+        tmp = tmp->sledeci;
+    }
+
+    tmp->sledeci = novi;
+    novi ->sledeci= NULL;
+    return glava;
+}
+Element* dodajNaIndex(Element* glava, Element* novi, int index)
+{
+    if(glava != NULL)
+    {
+        Element* tmp = glava;
+        if(index > 0)
+        {
+           while(tmp ->sledeci != NULL && index - 1 >0)
+            {
+                index--;
+                tmp = tmp->sledeci;
+            }
+
+            novi->sledeci = tmp->sledeci;
+            tmp->sledeci = novi;
+        }else glava = dodajNaPocetak(glava,novi);
+
+        return glava;
+    }
+    else return novi;
+
+}
+
+Element* dodajElement(int broj)
+{
+    Element* novi = malloc(sizeof(Element));
+    novi->broj = broj;
+    novi->sledeci = NULL;
+    return novi;
+}
+
+Element* obrisiVrednost(Element* glava,int vred)
+{
+    Element* tmp = glava;
+    /**Ako je glava prazna*/
+    if(glava == NULL)
+       return NULL;
+   /**Listanje kroz sve clanove u potrazi za vred za brisanje*/
+    while(tmp->sledeci != NULL)
+    {
+        if(tmp->sledeci->broj == vred)
+        {
+            Element* brisanje = tmp->sledeci;
+            tmp->sledeci = tmp->sledeci->sledeci;
+            free(brisanje);
+        }else
+        {
+          tmp = tmp->sledeci;
+        }
+    }
+    /**Ako glava ima vrednost za brisanje*/
+    if(glava->broj == vred)
+    {
+        Element* novaGlava = glava->sledeci;
+        free(glava);
+        return novaGlava;
+    }
+        return glava;
+}
+
+Element* obrisiPoziciju(Element* glava, int index)
+{
+    if(glava == NULL)
+        return NULL;
+
+    Element* tmp = glava;
+    int i=0;
+    /**Ako brisemo glavu*/
+    if(index == 0)
+    {
+        Element* novaGlava = glava->sledeci;
+        free(glava);
+        return novaGlava;
+    }
+    /**Ako ne predjemo index i ako nije element NULL*/
+    for(i=0; i<index -1  && tmp != NULL; i++)
+    {
+        tmp = tmp->sledeci;
+    }
+    /**Naslo je clan, brise ga*/
+    if(i == index-1)
+    {
+        Element* brisanje = tmp->sledeci;
+        tmp->sledeci = tmp->sledeci->sledeci;
+        free(brisanje);
+    }
+    /**Doslo je do kraja liste, brise rep*/
+    else
+    {
+        Element* brisanje = tmp->sledeci;
+        tmp->sledeci = NULL;
+        free(brisanje);
+    }
+
+    return glava;
+
+}
+
+void ispisi(Element* glava)
+{
+    Element* tmp = glava;
+    while(tmp != NULL)
+    {
+        printf("Vrednost : %d\n",tmp->broj);
+        tmp = tmp->sledeci;
+    }
+}
+
+Element* sortirajElemente(Element* glava)
+{
+    Element* tmp = glava;
+    Element* current = NULL;
+    int tempvar;
+    /**Kruzimo kroz clanove*/
+    while(tmp != NULL)
+    {
+        current = tmp;
+        /**Uporedjujemo svaki sledeci clan od trenutnog i sortiramo na osnovu vred*/
+        while(current ->sledeci != NULL)
+        {
+            if(current->broj > current->sledeci->broj)
+            {
+                tempvar = current->broj;
+                current->broj = current->sledeci->broj;
+                current->sledeci->broj = tempvar;
+            }
+            current = current->sledeci;
+        }
+        tmp = tmp->sledeci;
+    }
+    return glava;
+}
+
+Element* dodajSortitano(Element* glava, Element* novi)
+{
+    Element* tmp = sortirajElemente(glava);
+
+    /**Ako je najmanji posle soritranja*/
+        if(novi->broj < glava->broj)
+        {
+            return dodajNaPocetak(glava, novi);
+        }
+
+    while(tmp->sledeci != NULL)
+    {
+        /**Ako nadje pravo mesto ubaci ga na tu poziciju*/
+        if(tmp->broj <= novi->broj && tmp->sledeci->broj >= novi->broj)
+        {
+            novi->sledeci = tmp->sledeci;
+            tmp->sledeci = novi;
+            return glava;
+        }
+        tmp = tmp->sledeci;
+    }
+    if(novi->broj > tmp->broj)
+        return dodajNaKraj(glava, novi);
+
+}
+
+Element* nadoveziListe(Element* glava1, Element* glava2)
+{
+    Element* tmp = glava1;
+    while(tmp->sledeci != NULL)
+    {
+       tmp = tmp->sledeci;
+    }
+    tmp->sledeci = glava2;
+
+    return glava1;
+}
+
+Element* invertElemente(Element* glava)
+{
+    Element* tmp = glava;
+    Element* sled = NULL;
+    Element* pret = NULL;
+
+    while(tmp != NULL)
+    {
+        sled = tmp->sledeci;
+        tmp ->sledeci =pret;
+        pret = tmp;
+        tmp = sled;
+    }
+
+    return pret;
+}
+int main()
+{
+    Element* glava = NULL;
+    Element* glava2 = NULL;
+
+    glava = dodajNaPocetak(glava,dodajElement(4));
+    glava = dodajNaPocetak(glava,dodajElement(2));
+    glava = dodajNaPocetak(glava,dodajElement(6));
+
+    glava2 = dodajNaPocetak(glava2,dodajElement(40));
+    glava2 = dodajNaPocetak(glava2,dodajElement(20));
+    glava2 = dodajNaPocetak(glava2,dodajElement(60));
+
+    glava = invertElemente(glava);
+    //glava = nadoveziListe(glava,glava2);
+    ispisi(glava);
+    return 0;
+}
