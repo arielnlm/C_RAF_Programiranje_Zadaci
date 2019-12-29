@@ -63,9 +63,6 @@ double rek1(int n, int pocetak)
 }
 double ite1(int n)
 {
-
-
-///Kolokvijum 2, 2018/19 Grupa 3
     double zbir = 'a';
     int c;
     ///Krece od 2 jer hocemo da prvo sledece slovo registruje kao b
