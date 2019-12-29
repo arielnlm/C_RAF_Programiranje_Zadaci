@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+///Fibonacci sequence
+int fib(int n)
+{
+    if(n == 0)
+        return 0;
+    if(n == 1 || n == 2)
+        return 1;
+    return (fib(n-1) + fib(n-2));
+}
+
+///Pronalazi n-ti prost broj
+int prostBroj(int n)
+{
+    int i, flag, prime;
+    int counter = 1;
+
+     if (n == 1)
+        prime = 2;
+    else {
+        prime = 1;
+        do{
+            prime += 2;
+            flag = 1;
+            for (i = 3; i < prime; i+=2){
+                if (prime % i == 0) {
+                    flag = 0;
+                    break;
+                }
+            }
+            if(flag == 1)
+                counter++;
+        } while (counter != n);
+    }
+    return prime;
+}
+
+///Kolokvijum 2, 2018/19 Grupa 4
+double rek1(int n, int pocetak)
+{
+    int c;
+
+    ///Koji karakter pisemo
+    switch(n%4)
+    {
+        case 0: c = 'd'; break;
+        case 1: c = 'a'; break;
+        case 2: c = 'b'; break;
+        case 3: c = 'c'; break;
+    }
+    if(n>1)
+    {
+        if(n%2 == 0)
+            return c + (double)fib(pocetak)/(double)rek1(n-1, pocetak + 1);
+        else
+          return c - (double)fib(pocetak)/(double)rek1(n-1, pocetak + 1);
+    }
+
+    else return (double)c;
+}
+double ite1(int n)
+{
+
+
+///Kolokvijum 2, 2018/19 Grupa 3
+    double zbir = 'a';
+    int c;
+    ///Krece od 2 jer hocemo da prvo sledece slovo registruje kao b
+    int switcher = 2;
+    for(int i=n-1; i>0; i--)
+    {
+        switch(switcher % 4)
+        {
+            case 0: c = 'd'; break;
+            case 1: c = 'a'; break;
+            case 2: c = 'b'; break;
+            case 3: c = 'c'; break;
+        }
+        switcher++;
+
+        if(i%2 == 0)
+           zbir = c - (double)fib(i)/zbir;
+        else
+            zbir = c + (double)fib(i)/zbir;
+    }
+    return zbir;
+}
+
+///Kolokvijum 2, 2018/19 Grupa 3
+double rek2(int n, int pocetak)
+{
+    ///Pocetak krece od 2
+    if(n == 1)
+        return 1;
+    return sqrt((n*n*1.0) + fib(pocetak) * rek2(n-1, pocetak+1));
+}
+double ite2(int n)
+{
+
+    double zbir = 1;
+    for(int i=2; i<=n; i++)
+    {
+        zbir = sqrt(i*i + fib(n-i+2) * zbir);
+    }
+    return zbir;
+}
+
+///Kolokvijum 2, 2018/19 Grupa 2
+double rek3(int n, int pocetak, int znak)
+{
+    ///Za znak se unosi vrednost 1 u pocetku
+    if(n == 1)
+        return fib(pocetak);
+        return fib(pocetak) + (znak*(n*3.0))/rek3(n-1,pocetak + 1,znak*(-1));
+}
+double ite3(int n)
+{
+    double zbir = fib(n);
+
+    double znak;
+    if(n%2 == 0) znak = 1.0;
+    else znak = -1.0;
+
+    for(int i = 2; i<=n; i++)
+    {
+        zbir = fib(n-i+1) + znak*((i*3.0) / zbir);
+        znak = znak*(-1.0);
+    }
+    return zbir;
+}
+
+///Kolokvijum 2, 2018/19 Grupa 1
+double rek4(int n, int pocetak, double znak)
+{
+    ///Za znak uneti uvek jedan u pocetku
+    ///Zadatak radi ako se krece uvek od +
+    if(n == 1)
+        return 65;
+    return (64+n) + (znak*prostBroj(pocetak)) / rek4(n-1, pocetak+1, znak*(-1));
+}
+double ite4(int n)
+{
+    double znak = 1;
+    if(n%2 == 0) znak = -1;
+    double zbir = 65;
+
+    for(int i=1; i<n; i++)
+    {
+        zbir = 65+i - (znak * prostBroj(n-i))/zbir;
+        znak *= -1;
+    }
+    return zbir;
+}
+
+int main()
+{
+    printf("%lf\n",ite4(7));
+    
+    return 0;
+}
