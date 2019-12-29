@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int matCount = 0;
+
+int getSum(char* n)
+{
+    int broj = atoi(n);
+    int zbir = 0;
+    while(broj != 0)
+    {
+        zbir += broj%10;
+        broj /= 10;
+    }
+    return zbir;
+}
+
+void storeSum(int matrix[][20], int broj)
+{
+    static int i = 1;
+    matrix[i][0] = broj;
+    i++;
+    matCount++;
+}
+
+void storeNum(int matrix[][20], char* n)
+{
+    static int j = 1;
+    matrix[0][j] = atoi(n);
+    j++;
+}
+int findCommonSum(int matrix[][20])
+{
+    int index;
+    int ponavljanje = 0, maxPonavljanje = 0;
+    for(int i=1; i<=matCount; i++)
+    {
+        for(int j=1; j<=matCount; j++)
+        {
+            if(matrix[j][0] == matrix[i][0])
+                ponavljanje++;
+        }
+        if(maxPonavljanje < ponavljanje)
+        {
+            index = i;
+            maxPonavljanje = ponavljanje;
+        }
+        ponavljanje = 0;
+    }
+    int vrati = matrix[index][0];
+    return vrati;
+}
+
+void ispis(int matrix[][20], int comparator)
+{
+    printf("Zbir je: %d, ", comparator);
+    for(int i=1; i<=matCount; i++)
+    {
+        if(matrix[i][0] == comparator)
+            printf("%d ",matrix[0][i]);
+    }
+}
+int main()
+{
+    char str[100];
+    gets(str);
+    int mat[20][20];
+    int commonSum;
+    char* token = strtok(str, "-");
+    while(token != NULL)
+    {
+        storeNum(mat, token);
+        storeSum(mat, getSum(token));
+
+        token = strtok(NULL, "-");
+    }
+    commonSum = findCommonSum(mat);
+    ispis(mat, commonSum);
+    return 0;
+}
