@@ -78,7 +78,7 @@ double ite1(int n)
         }
         switcher++;
 
-        if(i%2 == 0)
+        if(i%2 == 1)
            zbir = c - (double)fib(i)/zbir;
         else
             zbir = c + (double)fib(i)/zbir;
