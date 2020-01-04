@@ -33,7 +33,6 @@ int main()
                 }
                 if(postoji)
                     brojac++;
-                    else break;
             }
         }
         ///Ako se ponavlja moramo da proverimo da li je rec vec upisana
