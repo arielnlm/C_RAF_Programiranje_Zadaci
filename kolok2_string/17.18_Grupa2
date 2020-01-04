@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+int main()
+{
+    char str[100], str2[100], str3[100];
+    gets(str);
+    strcpy(str2, str);
+    int str2Flag = 1;
+    int postoji = 0;
+    int brojac = 0;
+    char* token = strtok(str, " ");
+
+    while(token != NULL)
+    {
+        for(int i=0; i<strlen(str2); i++)
+        {
+            ///Da li se ponavlja vise od jedan put rec?
+            if(str2[i] == token[0])
+            {
+                for(int j=0; j<strlen(token); j++)
+                {
+                    if(str2[i+j] == token[j])
+                    {
+                        postoji = 1;
+                    }
+                    else{
+                        postoji = 0;
+                        break;
+                    }
+                }
+                if(postoji)
+                    brojac++;
+                    else break;
+            }
+        }
+        ///Ako se ponavlja moramo da proverimo da li je rec vec upisana
+        if(postoji && brojac > 1)
+        {
+            if(str2Flag)
+            {
+                str2Flag = 0;
+                strcpy(str3, token);
+                strcat(str3, " ");
+            }
+            else{
+                int recPostoji = 0;
+
+                for(int i=0; i<strlen(str3); i++)
+                {
+                    if(str3[i] == token[0])
+                    {
+                        for(int j=0; j<strlen(token); j++)
+                        {
+                            if(str3[i+j] == token[j])
+                            {
+                                recPostoji = 1;
+                            }
+                            else {
+                                recPostoji = 0;
+                                break;
+                            }
+                        }
+                        if(recPostoji)
+                            break;
+                    }
+                }
+                if(recPostoji == 0)
+                {
+                    strcat(str3, token);
+                    strcat(str3, " ");
+                }
+
+            }
+        }
+        postoji = 0;
+        brojac = 0;
+        token = strtok(NULL, " ");
+    }
+    strcat(str3, "\0");
+    puts(str3);
+
+    return 0;
+}
