@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+int main()
+{
+    char str[100], str2[100];
+    gets(str);
+    strcpy(str2, str);
+    int str2Flag = 1;
+    int postoji = 0;
+
+    char* token = strtok(str, " ");
+
+    while(token != NULL)
+    {
+        if(str2Flag)
+        {
+            strcpy(str2, token);
+            strcat(str2, " ");
+            str2Flag = 0;
+        }
+        else {
+            for(int i=0; i<strlen(str2); i++)
+            {
+                if(str2[i] == token[0])
+                {
+                    ///Prvo slovo se potrefilo prolazimo kroz celu rec
+                    for(int j=0; j<strlen(token); j++)
+                    {
+                        if(str2[i+j] == token[j])
+                            postoji = 1;
+                            ///Ne ponavlja se vise - break
+                        else{
+                            postoji = 0;
+                            break;
+                        }
+                    }
+                }
+                ///Ako je rec vec upisana break - nema potrebe proveravati ostale
+                if(postoji)
+                    break;
+            }
+            ///Ako rec postoji nista se ne radi
+            if(postoji)
+            {
+                postoji = 0;
+            }
+            else{
+                strcat(str2, token);
+                strcat(str2, " ");
+            }
+        }
+
+        token = strtok(NULL, " ");
+    }
+    strcat(str2, "\0");
+    puts(str2);
+
+    return 0;
+}
