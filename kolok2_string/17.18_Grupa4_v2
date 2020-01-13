@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main()
+{
+    char str[100];
+    gets(str);
+    char str2[100];
+    int flag = 1;
+    char* token = strtok(str, "-");
+
+    while(token != NULL)
+    {
+
+        for(int i=0; i<strlen(token); i++)
+        {
+            int poklapanja = 0;
+            for(int j=i+1; j<strlen(token); j++)
+            {
+                if(token[i] == token[j])
+                {
+                    poklapanja++;
+                    for(int k=j; k<strlen(token); k++)
+                    {
+                        token[k] = token[k+1];
+                    }
+                }
+            }
+            if(poklapanja == 0)
+            {
+                for(int k=i; k<strlen(token); k++)
+                {
+                    token[k] = token[k+1];
+                }
+                i--;
+            }
+        }
+
+        if(flag)
+        {
+            flag = 0;
+            strcpy(str2, token);
+        }
+        else if(strlen(token) > 0)
+        {
+            strcat(str2, "-");
+            strcat(str2, token);
+        }
+
+
+        token = strtok(NULL, "-");
+    }
+
+    puts(str2);
+    return 0;
+}
