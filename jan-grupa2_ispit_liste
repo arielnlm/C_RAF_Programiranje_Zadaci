@@ -1,0 +1,203 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Lista{
+
+    char linija[255];
+    int mesec;
+    int godina;
+    int musko;
+    int zensko;
+    struct Lista* sledeci;
+} Lista;
+
+typedef struct Lista2{
+
+    char linija[255];
+    int mesec;
+    int godina;
+    int musko;
+    int zensko;
+    struct Lista2* sledeci;
+} Lista2;
+
+Lista* napraviElement(char tekst[])
+{
+    Lista* novi = malloc(sizeof(Lista));
+    strcpy(novi->linija, tekst);
+    ///Ubacujemo elemente u listu
+    novi->mesec = atoi(strtok(novi->linija, " "));
+    novi->godina = atoi(strtok(NULL, " "));
+    novi->musko = atoi(strtok(NULL, " "));
+    novi->zensko = atoi(strtok(NULL, " "));
+    novi ->sledeci = NULL;
+    return novi;
+}
+
+Lista* dodajOpadajuce(Lista* glava, Lista* novi)
+{
+    if(glava == NULL)
+        return novi;
+
+    ///U slucaju da novi element postaje prvi
+    if(glava->godina < novi->godina || (glava->godina == novi->godina && glava->mesec < novi->mesec))
+    {
+        novi->sledeci = glava;
+        return novi;
+    }
+
+    Lista* tmp = glava;
+    while(tmp->sledeci != NULL)
+    {
+        if(tmp->sledeci->godina < novi->godina || (tmp->sledeci->godina == novi->godina && tmp->sledeci->mesec < novi->mesec))
+        {
+            Lista* helper = tmp->sledeci;
+            tmp->sledeci = novi;
+            novi->sledeci  = helper;
+            return glava;
+        }
+        tmp = tmp->sledeci;
+    }
+    tmp->sledeci = novi;
+    novi->sledeci = NULL;
+    return glava;
+}
+
+void stampaj(Lista* glava)
+{
+    Lista* tmp = glava;
+    while(tmp != NULL)
+    {
+        printf("Godina:%d, Mesec:%d\n",tmp->godina, tmp->mesec);
+        tmp = tmp->sledeci;
+    }
+}
+void ispisBrojaMeseciIte(Lista* glava, int broj)
+{
+    Lista* tmp = glava;
+    int meseci = 0;
+    while(tmp != NULL)
+    {
+        int muskozensko = tmp->musko + tmp->zensko;
+        if(muskozensko > broj)
+            meseci++;
+        tmp = tmp->sledeci;
+    }
+    printf("Iterativno ima %d meseci/a\n", meseci);
+}
+Lista* ispisBrojaMeseciRek(Lista* glava, Lista* helper,int brojMeseci, int brojUporedjivanja)
+{
+    if(helper == NULL)
+    {
+        printf("Rekurzivno : ima %d meseci/a\n", brojMeseci);
+        return glava;
+    }
+    int muskozensko = helper->musko + helper->zensko;
+    if(muskozensko > brojUporedjivanja)
+        brojMeseci++;
+    return ispisBrojaMeseciRek(glava, helper->sledeci, brojMeseci, brojUporedjivanja);
+}
+
+void ispisiBrojDecakaDevojcica(Lista* glava)
+{
+    ///podatak[0][godina]
+    ///podatak[broj rodjenih][0]
+    int podatak[100][100];
+    int rodjeni = 0;
+    int i = 1;
+    Lista* tmp = glava;
+    while(tmp->sledeci != NULL)
+    {
+        if(tmp->godina == tmp->sledeci->godina)
+        {
+            podatak[0][i] = tmp->godina;
+            rodjeni += tmp->musko + tmp->zensko;
+        }else{
+            rodjeni += tmp->mesec + tmp->zensko;
+            podatak[i][0] = rodjeni;
+            rodjeni = 0;
+            i++;
+        }
+        tmp = tmp ->sledeci;
+        if(tmp->sledeci == NULL)
+        {
+            rodjeni += tmp->mesec + tmp->zensko;
+            podatak[i][0] = rodjeni;
+            rodjeni = 0;
+            i++;
+        }
+    }
+    ///Sortiranje po broju rodjenih
+    for(int k=1; k<i-1; k++)
+    {
+       for(int p=k; p<i-1; p++)
+       {
+           if(podatak[p+1][0] > podatak[p][0])
+           {
+               int pomocni1 = podatak[p+1][0];
+               int pomocni2 = podatak[0][p+1];
+
+               podatak[p+1][0] = podatak[p][0];
+               podatak[p][0] = pomocni1;
+               podatak[0][p+1] = podatak[0][p];
+               podatak[0][p] = pomocni2;
+           }
+       }
+    }
+    ///Stampanje
+    for(int k=1; k<i; k++)
+    {
+        printf("Rodjene bebe:%d, godina:%d \n", podatak[k][0], podatak[0][k]);
+    }
+    return glava;
+}
+
+int main()
+{
+    FILE* fp;
+    Lista* glava = NULL;
+
+    char str[255];
+    printf("Unesite ime fajla koji zelite da otvorite\n");
+    char imeFajla[20];
+    ///INTERFACE*********
+    while(1)
+    {
+        int izbor, pomocni;
+        printf("\n********************************************\n");
+        printf("Izaberite opciju:\n1.Ucitaj ime fajla i sortiraj po opadajucem poretku\n2.Ispis broja meseci u kome je rodjedno vise od odredjenog broja dece");
+        printf("\n3.Ispis broja rodjenih decaka i devojcica sortirano po ukupnom broju rodjenih\n4.Stampaj celu listu\n");
+        printf("********************************************\n");
+        scanf("%d", &izbor);
+
+        switch(izbor)
+        {
+        case 1:
+            printf("Unesite ime fajla u obliku jan-grupa2 bez .txt, to dodaje sam program\n");
+            scanf("%s", imeFajla);
+            fp = fopen(strcat(imeFajla,".txt") ,"r+");
+            ///Citanje red po red i dodavanje u listu
+            while(fgets(str, 255, fp) != NULL)
+            {
+                glava = dodajOpadajuce(glava, napraviElement(str));
+            }
+            break;
+        case 2:
+            printf("Unesite broj u odnosu na koji uporedjujemo rodjenu decu\n");
+            scanf("%d", &pomocni);
+            ispisBrojaMeseciIte(glava, pomocni);
+            ispisBrojaMeseciRek(glava, glava, 0, pomocni);
+            break;
+        case 3:
+            ispisiBrojDecakaDevojcica(glava);
+            break;
+        case 4:
+            stampaj(glava);
+            break;
+        }
+    }
+    ///*******************
+
+    return 0;
+}
