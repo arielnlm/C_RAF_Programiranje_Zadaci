@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Lista{
+    char rec1[20];
+    char rec2[20];
+    struct Lista* sledeci;
+}Lista;
+
+Lista* napraviElement(char* linija)
+{
+    Lista* novi = malloc(sizeof(Lista));
+    strcpy(novi->rec1, strtok(linija, "-"));
+    strcpy(novi->rec2, strtok(NULL, "-"));
+    novi->sledeci = NULL;
+    return novi;
+}
+
+Lista* dodajOpadajuce(Lista* glava, Lista* novi)
+{
+    if(glava == NULL)
+        return novi;
+
+    ///Ako treba da ide na prvo mesto
+    if(strcmp(novi->rec1, glava->rec1) > 0)
+    {
+        novi->sledeci = glava;
+        return novi;
+    }
+
+    Lista* tmp = glava;
+    while(tmp->sledeci != NULL)
+    {
+        ///aca i baca vraca negativno
+        if(strcmp(novi->rec1, tmp->sledeci->rec1) > 0)
+        {
+            Lista* helper = tmp->sledeci;
+            tmp->sledeci = novi;
+            novi->sledeci = helper;
+            return glava;
+        }
+        tmp = tmp->sledeci;
+    }
+
+    ///U slucaju da treba da ide na poslednje mesto
+    tmp->sledeci = novi;
+    return glava;
+}
+
+void stampaj(Lista* glava)
+{
+    Lista* tmp = glava;
+    while(tmp != NULL)
+    {
+        printf("Rec1:%s, Rec2:%s\n", tmp->rec1, tmp->rec2);
+        tmp = tmp->sledeci;
+    }
+}
+
+void ispisiSinonime(Lista* glava, char* rec)
+{
+    Lista* tmp = glava;
+    char sinonimi[300];
+    int ft = 1;
+
+    while(tmp != NULL)
+    {
+        if(strcmp(rec, tmp->rec1) == 0)
+        {
+            if(ft == 1)
+            {
+                ft = 0;
+                strcpy(sinonimi, tmp->rec2);
+            }
+            else
+                strcat(sinonimi, tmp->rec2);
+            strcat(sinonimi, " ");
+        }
+        else if(strcmp(rec, tmp->rec2) == 0)
+        {
+            if(ft == 1)
+            {
+                ft = 0;
+                strcpy(sinonimi, tmp->rec1);
+            }
+            else
+                strcat(sinonimi, tmp->rec1);
+            strcat(sinonimi, " ");
+        }
+        tmp = tmp->sledeci;
+    }
+    if(ft == 0)
+    {
+        printf("Za rec %s, sinonimi su:%s ", rec,sinonimi);
+    }
+    else{
+        printf("Nema sinonima\n");
+    }
+
+}
+void najviseSinonima(Lista* glava)
+{
+    int brojPon = 0, maxBrojPon = 0;
+    Lista* tmp = glava;
+    char tmpRec[20];
+    char rec[20];
+    while(tmp != NULL)
+    {
+        brojPon = 0;
+        strcpy(tmpRec, tmp->rec1);
+        Lista* helper = tmp;
+        while(helper != NULL)
+        {
+           if(strcmp(helper->rec1, tmpRec) == 0 || strcmp(helper->rec2, tmpRec) == 0)
+            brojPon++;
+            helper = helper->sledeci;
+        }
+        if(brojPon > maxBrojPon)
+        {
+            maxBrojPon = brojPon;
+            strcpy(rec, tmpRec);
+        }
+
+        tmp = tmp->sledeci;
+    }
+    printf("Rec sa najvise sinonima je:%s\n",rec);
+}
+int main(){
+
+    char imeFajla[20];
+    Lista* glava = NULL;
+
+    scanf("%s", imeFajla);
+    FILE* fp = fopen(strcat(imeFajla, ".txt"), "r+");
+    char str[255];
+    while(fgets(str, 255, fp) != NULL)
+    {
+        ///Sklanjam novu liniju
+        str[strcspn(str, "\n")] = 0;
+        glava = dodajOpadajuce(glava, napraviElement(str));
+    }
+    //stampaj(glava);
+    najviseSinonima(glava);
+    ispisiSinonime(glava, "konj");
+
+    return 0;
+}
