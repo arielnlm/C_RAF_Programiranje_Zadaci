@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+///Ucitati fajl i ipisati
+///Naci rec koja se najvise ponavlja i koliko puta
+///Izbaci duplikate
+///Sortirati listu
+
+typedef struct Lista{
+    char rec[15];
+    struct Lista* sledeci;
+}Lista;
+
+Lista* napraviElement(char* tekst)
+{
+    Lista* novi = malloc(sizeof(Lista));
+    strcpy(novi->rec, tekst);
+    novi->sledeci = NULL;
+    return novi;
+}
+
+Lista* dodajNaPocetak(Lista* glava, Lista* novi)
+{
+    if(glava == NULL)
+        return novi;
+    novi->sledeci = glava;
+    return novi;
+}
+
+void ponavaljanjeReci(Lista* glava)
+{
+    Lista* tmp = glava;
+    char tmpRec[20], maxRec[20];
+    int tmpBr = 0, maxBr = 0;
+    while(tmp != NULL)
+    {
+        strcpy(tmpRec, tmp->rec);
+        Lista* helper = tmp;
+        while(helper != NULL)
+        {
+            if(strcmp(tmpRec, helper->rec) == 0)
+                tmpBr++;
+
+            helper = helper->sledeci;
+        }
+        if(tmpBr > maxBr)
+        {
+            maxBr = tmpBr;
+            strcpy(maxRec, tmpRec);
+        }
+
+        tmpBr = 1;
+        tmp = tmp->sledeci;
+    }
+    printf("Rec koja se ponavlja najvise je: %s, %d puta.\n", maxRec, maxBr);
+}
+
+Lista* izbrisiDuplikate(Lista* glava)
+{
+    ///Work in progress
+}
+
+int main()
+{
+    FILE* fp;
+    Lista* glava = NULL;
+    char str[255];
+    fp = fopen("reci.txt", "r+");
+    int reci = 0;
+    while(1)
+    {
+        fscanf(fp, "%s", str);
+        if(feof(fp)) break;
+        glava = dodajNaPocetak(glava, napraviElement(str));
+        reci++;
+    }
+    printf("Napravljeno %d reci\n",reci);
+    ponavaljanjeReci(glava);
+}
